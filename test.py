@@ -2,7 +2,7 @@ import time
 import smbus2
 
 si7021_ADD = 0x40
-si7021_READ_TEMPERATURE =  0xF3
+si7021_READ_TEMPERATURE = 0xF3
 
 bus = smbus2.SMBus(1)
 
@@ -20,7 +20,3 @@ bus.i2c_rdwr(read_result)
 #convert the result to an int
 temperature = int.from_bytes(read_result.buf[0]+read_result.buf[1],'big')
 print(temperature)
-
-RealTem = (175.72 * temperature)/65536 - 46.85
-
-print("Temperature in Celsius =%d" % RealTem)
