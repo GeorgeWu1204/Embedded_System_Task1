@@ -33,7 +33,7 @@ class HX711:
         self.byte_format = 'MSB'
         self.bit_format = 'MSB'
 
-        self.set_gain(gain)
+        # self.set_gain(gain)
 
         # Think about whether this is necessary.
         time.sleep(1)
@@ -179,23 +179,40 @@ class HX711:
         return sum(valueList) / len(valueList)
 
 
+    # A median-based read method, might help when getting random value spikes
+    # for unknown or CPU-related reasons
+    def read_median(self, times=3):
+       if times <= 0:
+          raise ValueError("HX711::read_median(): times must be greater than zero!")
+      
+       # If times == 1, just return a single reading.
+       if times == 1:
+          return self.read_long()
+
+       valueList = []
+
+       for x in range(times):
+          valueList += [self.read_long()]
+
+       valueList.sort()
+
+       # If times is odd we can just take the centre value.
+       if (times & 0x1) == 0x1:
+          return valueList[len(valueList) // 2]
+       else:
+          # If times is even we have to take the arithmetic mean of
+          # the two middle values.
+          midpoint = len(valueList) / 2
+          return sum(valueList[midpoint:midpoint+2]) / 2.0
 
     # Compatibility function, uses channel A version
     def get_value(self, times=3):
-        return self.get_value_A(times)
-
-
-    def get_value_A(self, times=3):
-        return self.read_median(times) - self.get_offset_A()
+        return self.read_median(times) - self.get_offset()
 
 
     # Compatibility function, uses channel A version
     def get_weight(self, times=3):
-        return self.get_weight_A(times)
-
-
-    def get_weight_A(self, times=3):
-        value = self.get_value_A(times)
+        value = self.get_value(times)
         value = value / self.REFERENCE_UNIT
         return value
 
@@ -203,18 +220,18 @@ class HX711:
     # Sets tare for channel A for compatibility purposes
     def tare(self, times=15):   
                 
-        backupReferenceUnit = self.get_reference_unit_A()
-        self.set_reference_unit_A(1)
+        backupReferenceUnit = self.get_reference_unit()
+        self.set_reference_unit(1)
         
         value = self.read_average(times)
 
         if self.DEBUG_PRINTING:
             print("Tare A value:", value)
         
-        self.set_offset_A(value)
+        self.set_offset(value)
 
         # Restore the reference unit, now that we've got our offset.
-        self.set_reference_unit_A(backupReferenceUnit)
+        self.set_reference_unit(backupReferenceUnit)
 
         return value
 
@@ -293,8 +310,8 @@ class HX711:
         # isn't what client software has requested from us, take a sample and
         # throw it away, so that next sample from the HX711 will be from the
         # correct channel/gain.
-        if self.get_gain() != 128:
-            self.readRawBytes()
+        # if self.get_gain() != 128:
+        #     self.readRawBytes()
 
 
     def reset(self):
