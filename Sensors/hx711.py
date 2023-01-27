@@ -38,6 +38,18 @@ class HX711:
         # Think about whether this is necessary.
         time.sleep(1)
 
+    def set_gain(self, gain):
+        if gain is 128:
+            self.GAIN = 1
+        elif gain is 64:
+            self.GAIN = 3
+        elif gain is 32:
+            self.GAIN = 2
+
+        GPIO.output(self.PD_SCK, False)
+
+        # Read out a set of raw bytes and throw it away.
+        self.readRawBytes()
         
     def convertFromTwosComplement24bit(self, inputValue): 
         return -(inputValue & 0x800000) + (inputValue & 0x7fffff)

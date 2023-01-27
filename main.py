@@ -1,4 +1,4 @@
-from Sensors.si7021TemHumid import Si7021
+from Sensors.Si7021TemHumid import Si7021
 import smbus2
 import time
 import sys
@@ -19,7 +19,7 @@ import sys
 
 referenceUnit = 1
 import RPi.GPIO as GPIO
-from hx711 import HX711
+from Sensors.hx711 import HX711
 
 def cleanAndExit():
     print("Cleaning...")
