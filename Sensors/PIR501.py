@@ -31,7 +31,7 @@ class pir501():
         while time_requirement == None or (timer < time_requirement and time_requirement != None):
                 time.sleep(1)
                 timer += 1
-                print("inside the loop time = %d", timer)
+                # print("inside the loop time = %d", timer)
 
         GPIO.remove_event_detect (self.channel)
     

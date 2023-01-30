@@ -9,12 +9,11 @@ import threading
 class HX711:
 
     def __init__(self, dout, pd_sck, gain=128): #ok
-        self.PD_SCK = pd_sck #6
-        self.DOUT = dout #5
+        self.PD_SCK = pd_sck
+        self.DOUT = dout 
         # Mutex for reading from the HX711, in case multiple threads in client
         # software try to access get values from the class at the same time.
         self.readLock = threading.Lock()
-        
         GPIO.setmode(GPIO.BCM)
         GPIO.setup(self.PD_SCK, GPIO.OUT)
         GPIO.setup(self.DOUT, GPIO.IN)
@@ -38,18 +37,18 @@ class HX711:
         # Think about whether this is necessary.
         time.sleep(1)
 
-    def set_gain(self, gain):
-        if gain is 128:
-            self.GAIN = 1
-        elif gain is 64:
-            self.GAIN = 3
-        elif gain is 32:
-            self.GAIN = 2
+    # def set_gain(self, gain):
+    #     if gain is 128:
+    #         self.GAIN = 1
+    #     elif gain is 64:
+    #         self.GAIN = 3
+    #     elif gain is 32:
+    #         self.GAIN = 2
 
-        GPIO.output(self.PD_SCK, False)
+    #     GPIO.output(self.PD_SCK, False)
 
-        # Read out a set of raw bytes and throw it away.
-        self.readRawBytes()
+    #     # Read out a set of raw bytes and throw it away.
+    #     self.readRawBytes()
         
     def convertFromTwosComplement24bit(self, inputValue): 
         return -(inputValue & 0x800000) + (inputValue & 0x7fffff)
