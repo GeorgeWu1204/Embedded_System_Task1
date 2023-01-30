@@ -36,7 +36,7 @@ class max30101(qwiic_max3010x.QwiicMax3010x):
         beatAvg = 0
         samplesTaken = 0 # Counter for calculating the Hz or read rate
         startTime = millis() # Used to calculate measurement rate
-        while sample_num == None or samplesTaken < sample_num:
+        while sample_num == None or (samplesTaken < sample_num and sample_num != None):
                     
             irValue = self.getIR()
             samplesTaken += 1

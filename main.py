@@ -1,9 +1,18 @@
-from Sensors.Si7021TemHumid import Si7021
-from Actuator.servo import MyServo
+# from Sensors.Si7021TemHumid import Si7021
+# from Actuator.servo import MyServo
 import RPi.GPIO as GPIO
 import time
-import smbus2
+# import smbus2
 import sys
+from Sensors.noise_sensor import noise_sensor
+
+
+# ns = noise_sensor(6)
+# ns.start_detection()
+
+
+
+
 
 # bus = smbus2.SMBus(1)
 
@@ -22,7 +31,6 @@ import sys
 
 
 referenceUnit = 1
-import RPi.GPIO as GPIO
 from Sensors.hx711 import HX711
 
 def cleanAndExit():
@@ -48,6 +56,7 @@ print("Tare done! Add weight now...")
 
 
 while True:
+    time.sleep(1)
     try:
         # These three lines are usefull to debug wether to use MSB or LSB in the reading formats
         # for the first parameter of "hx.set_reading_format("LSB", "MSB")".
@@ -58,8 +67,10 @@ while True:
         # print binary_string + " " + np_arr8_string
         
         # Prints the weight. Comment if you're debbuging the MSB and LSB issue.
+        raw_data = hx.readRawBytes()
+        print("raw_data =", raw_data)
         val = hx.get_weight(5)
-        print(val)
+        print("obtained val = ", val)
 
         hx.power_down()
         hx.power_up()

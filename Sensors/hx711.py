@@ -9,8 +9,8 @@ import threading
 class HX711:
 
     def __init__(self, dout, pd_sck, gain=128): #ok
-        self.PD_SCK = pd_sck
-        self.DOUT = dout
+        self.PD_SCK = pd_sck #6
+        self.DOUT = dout #5
         # Mutex for reading from the HX711, in case multiple threads in client
         # software try to access get values from the class at the same time.
         self.readLock = threading.Lock()
@@ -64,9 +64,10 @@ class HX711:
        # ready 1us after PD_SCK rising edge, so we sample after
        # lowering PD_SCL, when we know DOUT will be stable.
        GPIO.output(self.PD_SCK, True)
+       time.sleep(0.1)
        GPIO.output(self.PD_SCK, False)
        value = GPIO.input(self.DOUT)
-
+       print(int(value))
        # Convert Boolean to int and return it.
        return int(value)
 
