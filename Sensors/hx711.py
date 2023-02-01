@@ -317,6 +317,93 @@ class HX711:
     def reset(self):
         self.power_down()
         self.power_up()
+    
+    def start_detection(self, detect_awake, error_allowed = 5):
+        print("in hx711, start detection")
+        # avg_load = 0
+        # stable_duration = 0
+        # cur_load = 0
+        # while True:
+        #     time.sleep(1)
+        #     try:
+        #         raw_data = self.readRawBytes()
+        #         print("raw_data =", raw_data)
+        #         cur_load = self.get_weight(5)
+        #         print("obtained val = ", val)
+        #         self.power_down()
+        #         self.power_up()
+                
+        #         # if(stable_duration > 5)
+
+        #         # if(stable_duration > 5 and avg_load - error_allowed < cur_load < avg_load + error_allowed):
+        #         #     avg_load = (avg_load * stable_duration + cur_load) / (stable_duration + 1)
+        #         #     if( stable_duration < 30):
+        #         #         stable_duration += 1
+                
+        #         # elif (stable_duration < 10 and ):
+        #         #     avg_load = 
+
+
+
+
+
+        #         time.sleep(0.1)
+        #     except (KeyboardInterrupt, SystemExit):
+        #         cleanAndExit()
+
+
 
 
 # EOF - hx711.py
+
+
+if __name__ == "__main__":
+    import sys
+    referenceUnit = 1
+    from Sensors.hx711 import HX711
+
+    def cleanAndExit():
+        print("Cleaning...")
+        GPIO.cleanup()
+            
+        print("Bye!")
+        sys.exit()
+
+
+    hx = HX711(5, 6)
+
+    hx.set_reading_format("MSB", "MSB")
+
+
+    hx.set_reference_unit(referenceUnit)
+
+    hx.reset()
+
+    hx.tare()
+
+    print("Tare done! Add weight now...")
+
+
+    while True:
+        time.sleep(1)
+        try:
+            # These three lines are usefull to debug wether to use MSB or LSB in the reading formats
+            # for the first parameter of "hx.set_reading_format("LSB", "MSB")".
+            # Comment the two lines "val = hx.get_weight(5)" and "print val" and uncomment these three lines to see what it prints.
+            
+            # np_arr8_string = hx.get_np_arr8_string()
+            # binary_string = hx.get_binary_string()
+            # print binary_string + " " + np_arr8_string
+            
+            # Prints the weight. Comment if you're debbuging the MSB and LSB issue.
+            raw_data = hx.readRawBytes()
+            print("raw_data =", raw_data)
+            val = hx.get_weight(5)
+            print("obtained val = ", val)
+
+            hx.power_down()
+            hx.power_up()
+            time.sleep(0.1)
+
+        except (KeyboardInterrupt, SystemExit):
+            cleanAndExit()

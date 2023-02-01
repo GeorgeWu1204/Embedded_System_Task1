@@ -42,3 +42,7 @@ class MyServo:
 			servo.stop()
 			GPIO.cleanup()
 
+
+
+# mySer = MyServo(13,50)
+# mySer.set_angle(8,0.1)
