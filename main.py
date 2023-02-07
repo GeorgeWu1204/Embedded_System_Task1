@@ -16,7 +16,7 @@ class top_design:
     def __init__(self, id, mode):
         self.name = id
         self.mode = mode
-        self.Sensors = sensor_group(self.name, self.mode)
+        self.Sensors = sensor_group(self.name, max30101_=True, si7021_=True, hx711_=True, pir501_= True, noise_ = True)
         self.Actuators = acturator (self.name, self.mode)
         
         self.Comm = communication()
@@ -33,14 +33,18 @@ class top_design:
 
         monitor_thread.start()
         print("monitor start")
-        actuator_thread.start()
-        print("actuator_thread start")
+        # actuator_thread.start()
+        # print("actuator_thread start")
 
-        print("start Communication")
-        self.Comm.start_communication(self.send_message, self.receive_message)
+        # print("start Communication")
+        # self.Comm.start_communication(self.send_message, self.receive_message)
 
     
     
+
+test = top_design("5", "ggg")
+test.start_monitor()
+
 
 
 

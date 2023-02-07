@@ -252,7 +252,7 @@ class QwiicMax3010x(object):
 
     # Constructor
 
-    def __init__(self, address=None, i2c_driver=None, bus_):
+    def __init__(self, address=None, i2c_driver=None, bus_ = None):
 
         # Did the user specify an I2C address?
         self.address = address if address is not None else self.available_addresses[0]
@@ -266,6 +266,7 @@ class QwiicMax3010x(object):
                 return
         else:
             self._i2c = i2c_driver
+        
 
     # ----------------------------------
     # isConnected()
@@ -1081,7 +1082,7 @@ class QwiicMax3010x(object):
             self._i2c.writeCommand(self.address, MAX30105_FIFODATA)
 
             # Block Read (>32 bytes) bytesToRead from the sensor
-            # with SMBus(1) as bus:
+
             msg = i2c_msg.read(self.address, bytesToRead)
             self.bus.i2c_rdwr(msg)
             buff = list(msg)

@@ -10,10 +10,10 @@ class pir501():
         self.detection_count = 0
 
     def callback(self, channel):
-        if GPIO.input(channel):
-                print("Movement Detected!")
-        else:
-                print("Movement Detected!")
+        # if GPIO.input(channel):
+        #         print("Movement Detected!")
+        # else:
+        #         print("Movement Detected!")
         self.detection_count += 1
         if (self.detection_count >= 5) and (self.event.is_set() == False):
             self.event.set()

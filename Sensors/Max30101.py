@@ -1,11 +1,11 @@
-import qwiic_max3010x
+from Sensors.qwiic_max3010x.qwiic_max3010x import QwiicMax3010x
 import time
 import sys
 
 def millis():
 	return int(round(time.time() * 1000))
 
-class max30101(qwiic_max3010x.QwiicMax3010x):
+class max30101(QwiicMax3010x):
     # def __init__(self, address=None, i2c_driver=None):
     #     super().__init__(address, i2c_driver)
     def Check_device_connection(self):
@@ -19,13 +19,7 @@ class max30101(qwiic_max3010x.QwiicMax3010x):
 
         
     def take_heartbeat_rate(self, sample_num = None):
-        print("Place your index finger on the sensor with steady pressure.")
-        if self.setup() == False:
-            print("Device setup failure. Please check your connection", \
-                file=sys.stderr)
-            return
-        else:
-            print("Setup complete.")
+        self.softReset()
         self.setPulseAmplitudeRed(0x0A) # Turn Red LED to low to indicate sensor is running
         self.setPulseAmplitudeGreen(0) # Turn off Green LED
         RATE_SIZE = 4 # Increase this for more averaging. 4 is good.
@@ -42,7 +36,7 @@ class max30101(qwiic_max3010x.QwiicMax3010x):
             samplesTaken += 1
             if self.checkForBeat(irValue) == True:
                 # We sensed a beat!
-                print('BEAT')
+                # print('BEAT')
                 delta = ( millis() - lastBeat )
                 lastBeat = millis()	
         
@@ -62,15 +56,15 @@ class max30101(qwiic_max3010x.QwiicMax3010x):
                     beatAvg = round(beatAvg)
             
             Hz = round(float(samplesTaken) / ( ( millis() - startTime ) / 1000.0 ) , 2)
-            if (samplesTaken % 200 ) == 0:
+            # if (samplesTaken % 200 ) == 0:
             
-                print(\
-                    'IR=', irValue , ' \t',\
-                                'BPM=', beatsPerMinute , '\t',\
-                                                                                    #'DCE', getDCE() , '\t',\
-                                'Avg=', beatAvg , '\t',\
-                    'Hz=', Hz, \
-                    )
+            #     print(\
+            #         'IR=', irValue , ' \t',\
+            #                     'BPM=', beatsPerMinute , '\t',\
+            #                                                                         #'DCE', getDCE() , '\t',\
+            #                     'Avg=', beatAvg , '\t',\
+            #         'Hz=', Hz, \
+            #         )
         return [beatsPerMinute, beatAvg]
 
 # if __name__ == '__main__':

@@ -1,5 +1,5 @@
-from servo import MyServo
-from Speaker import speaker
+from Actuator.servo import MyServo
+from Actuator.Speaker import speaker
 
 class acturator:
     def __init__(self, id, mode):

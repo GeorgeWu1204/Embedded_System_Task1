@@ -4,7 +4,7 @@ from Sensors.Max30101 import max30101
 #GPIO
 from Sensors.noise_sensor import noise_sensor
 from Sensors.PIR501 import pir501
-from Sensors.hx711 import HX711
+from Sensors.hx711Pack.hx711Interface import hx711Interface
 
 import smbus2
 import threading
@@ -14,9 +14,9 @@ import json
 Si7021_I2C_port = 0x40
 Max30101_I2C_port = 0x57
 Noise_sensor_GPIO = 26
-Pir501_GPIO = 5
-Hx711_DT_GPIO = 6
-Hx711_SCK_GPIO = 21
+Pir501_GPIO = 19
+Hx711_DT_GPIO = 5
+Hx711_SCK_GPIO = 6
 Servo_GPIO = 13
 GPIO_Detection_Period = 10
 Heart_beat_lower_bound = 60
@@ -34,13 +34,16 @@ class sensor_group():
         else:
             self.Si = None
         if(max30101_ == True):
-            self.Max = max30101(Max30101_I2C_port, bus)
+            self.Max = max30101(address=Max30101_I2C_port, bus_=bus)
             print("Max30101 Heart Rate Sensor initialized")
         else:
             self.Max = None
         if(hx711_ == True):
-            self.Hx = HX711(Hx711_DT_GPIO, Hx711_SCK_GPIO)
+            self.Hx = hx711Interface(Hx711_DT_GPIO, Hx711_SCK_GPIO)
             print("Hx711 Load Force sensor initialized")
+            print("You have to call setup to complete the initialize process")
+            self.Hx.setup()
+            print("Take reading by calling invoke")
         else:
             self.Hx = None
         if(pir501_ == True):
@@ -68,10 +71,10 @@ class sensor_group():
 
 
     def I2C(self,time_requirement):
-        print("Perform I2C testing")
+        # print("Perform I2C testing")
         timer = 0
-        T_list = [0]*20
-        H_list = [0]*20
+        T_list = [0]*5
+        H_list = [0]*5
         record_index = 0
         
         while timer < time_requirement: 
@@ -79,17 +82,22 @@ class sensor_group():
             timer += 1
             
             record_index += 1
-            if(record_index % 20 == 0):
+            if(record_index % 5 == 0):
                 self.avg_temperature = Average(T_list)
                 self.avg_humidity = Average(H_list)
                 record_index = 0
+                print("heart_rate_ ", self.heart_avg)
+                print("temperature_ ", self.avg_temperature)
+                print("humidity_ :", self.avg_humidity)
             else:
+                print("YOOOOO", self.Si.get_temperature_celsius())
                 T_list[record_index] = self.Si.get_temperature_celsius()
                 H_list[record_index] = self.Si.get_humidity_percentage()
                 
-            self.heart_rate_per_minute, self.heart_avg = self.Max.take_heartbeat_rate()
+            self.heart_rate_per_minute, self.heart_avg = self.Max.take_heartbeat_rate(10)
             # if(self.heart_avg < Heart_beat_lower_bound or self.heart_avg > Heart_beat_upper_bound):
             #     self.detect_danger.set()
+            
         
 
 
@@ -102,12 +110,17 @@ class sensor_group():
         #GPIO threading start
         t_1 = threading.Thread(target=self.Noise.start_detection, args=(100, self.crying, GPIO_Detection_Period))
         t_2 = threading.Thread(target=self.Pir.start_detection, args = (100, self.awake, GPIO_Detection_Period))
-        t_3 = threading.Thread(target=self.Hx., *args = (self.onbed))
+        t_3 = threading.Thread(target=self.Hx.start_detection, args = (100, self.onbed, GPIO_Detection_Period))
         t_1.start()
         t_2.start()
-        #t_3.start()
+        t_3.start()
+
         # Start I2C detection on main thread.
         while True:
+            print("check status ")
+            print("crying ", self.crying)
+            print("awake ", self.awake)
+            print("onbed", self.onbed)
             self.I2C(time_requirement=100) # running time 1000*0.5 m
             self.pack_data()
             lock.acquire()

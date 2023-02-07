@@ -12,10 +12,10 @@ class noise_sensor():
         self.detection_count = 0
 
     def callback(self, channel):
-        if GPIO.input(channel):
-                print("Sound Detected!")
-        else:
-                print("Sound Detected!")
+        # if GPIO.input(channel):
+        #         print("Sound Detected!")
+        # else:
+        #         print("Sound Detected!")
         
         self.detection_count += 1
         if (self.detection_count >= 5) and (self.event.is_set() == False):
