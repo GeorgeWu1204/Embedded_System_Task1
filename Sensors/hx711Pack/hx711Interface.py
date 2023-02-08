@@ -59,13 +59,13 @@ class hx711Interface:
         # finally:
         #     GPIO.cleanup()
 
-    def movingAverage(self, queue, reading, result):
+    def movingAverage(self, queue, reading, result,maxsize):
         q1 = queue
         sum = 0
         if queue.full():
             for i in range(queue.qsize()):
                 sum+=q1.get(i)
-            return sum / queue.qsize()
+            return sum / maxsize
         else:
             queue.put(reading)
             return result 
@@ -80,19 +80,15 @@ class hx711Interface:
             # Read data several times and return mean value
             # subtracted by offset and converted by scale ratio to
             # desired units. In my case in grams.
-            print("Now, I will read data in infinite loop. To exit press 'CTRL + C'")
-            input('Press Enter to begin reading')
-            print('Current weight on the scale in grams is: ')
-            
             timer = 0
-            short_result = 0
-            long_result = 0
+            short_result = self.hx.get_weight_mean(20)
+            long_result = self.hx.get_weight_mean(20)
             while time_requirement == None or (timer < time_requirement and time_requirement != None):
                 weight_val = self.hx.get_weight_mean(20)
                 # print(self.hx.get_weight_mean(20), 'g')
-                short_result = self.movingAverage(current_val,weight_val, short_result)
-                long_result = self.movingAverage(avg_val,weight_val, long_result)
-                print("check load, short result", short_result, "long_resl ", long_result)
+                short_result = self.movingAverage(current_val,weight_val, short_result,3)
+                long_result = self.movingAverage(avg_val,weight_val, long_result,10)
+                # print("check load, short result", short_result, "long_resl ", long_result)
                 if(long_result -5 < short_result and short_result < long_result + 5):
                     self.event.set()
                 time.sleep(0.5)

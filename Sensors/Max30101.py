@@ -18,10 +18,28 @@ class max30101(QwiicMax3010x):
             return True
 
         
-    def take_heartbeat_rate(self, sample_num = None):
-        self.softReset()
+    def buildingup(self):
+        print("Place your index finger on the sensor with steady pressure.")
+        if self.setup() == False:
+            print("Device setup failure. Please check your connection", \
+                file=sys.stderr)
+            return
+        else:
+            print("Setup complete.")
         self.setPulseAmplitudeRed(0x0A) # Turn Red LED to low to indicate sensor is running
         self.setPulseAmplitudeGreen(0) # Turn off Green LED
+
+    def take_heartbeat_rate(self, sample_num = None):
+        #self.softReset()
+        # print("Place your index finger on the sensor with steady pressure.")
+        # if self.setup() == False:
+        #     print("Device setup failure. Please check your connection", \
+        #         file=sys.stderr)
+        #     return
+        # else:
+        #     print("Setup complete.")
+        # self.setPulseAmplitudeRed(0x0A) # Turn Red LED to low to indicate sensor is running
+        # self.setPulseAmplitudeGreen(0) # Turn off Green LED
         RATE_SIZE = 4 # Increase this for more averaging. 4 is good.
         rates = list(range(RATE_SIZE)) # list of heart rates
         rateSpot = 0
@@ -31,8 +49,8 @@ class max30101(QwiicMax3010x):
         samplesTaken = 0 # Counter for calculating the Hz or read rate
         startTime = millis() # Used to calculate measurement rate
         while sample_num == None or (samplesTaken < sample_num and sample_num != None):
-                    
             irValue = self.getIR()
+            # print("IR done", irValue)
             samplesTaken += 1
             if self.checkForBeat(irValue) == True:
                 # We sensed a beat!
@@ -42,7 +60,6 @@ class max30101(QwiicMax3010x):
         
                 beatsPerMinute = 60 / (delta / 1000.0)
                 beatsPerMinute = round(beatsPerMinute,1)
-        
                 if beatsPerMinute < 255 and beatsPerMinute > 20:
                     rateSpot += 1
                     rateSpot %= RATE_SIZE # Wrap variable
@@ -56,7 +73,7 @@ class max30101(QwiicMax3010x):
                     beatAvg = round(beatAvg)
             
             Hz = round(float(samplesTaken) / ( ( millis() - startTime ) / 1000.0 ) , 2)
-            # if (samplesTaken % 200 ) == 0:
+            # if (samplesTaken % 50 ) == 0:
             
             #     print(\
             #         'IR=', irValue , ' \t',\
@@ -65,7 +82,7 @@ class max30101(QwiicMax3010x):
             #                     'Avg=', beatAvg , '\t',\
             #         'Hz=', Hz, \
             #         )
-        return [beatsPerMinute, beatAvg]
+        return  [beatsPerMinute, beatAvg]
 
 # if __name__ == '__main__':
 #     try:
