@@ -3,7 +3,9 @@ import subprocess
 from os import listdir,kill
 from os.path import isfile, join
 import signal
-
+import fnmatch
+import re
+import difflib
 
 
 class speaker:
@@ -20,8 +22,8 @@ class speaker:
         ytmusic = YTMusic('headers_auth.json')
         # playlistId = ytmusic.create_playlist("test", "test description")
         search_results = ytmusic.search(songname)
-        print([search_results[0]['videoId']])
         url = "https://music.youtube.com/watch?v=" + [search_results[0]['videoId']][0]
+        print(url)
         return url
     
     def download_song_to_directory(self, songName, directory="/home/pi/Music/"):
@@ -29,21 +31,37 @@ class speaker:
         subprocess.call("pwd", shell=True, cwd="/home/pi/Music/")
         subprocess.call("youtube-dl -x --audio-format wav " + url, shell=True, cwd="/home/pi/Music/")
 
+    def regexMatching(self,songName, onlyfilesLst):
+        firstWord = songName.split(" ")[0]
+        pattern = r"^" + firstWord + ".*\.wav"
+        regex = re.compile(pattern, re.IGNORECASE)
+        for fileName in onlyfilesLst:
+            if regex.match(fileName):
+                return [True, fileName]
+        return [False, None]
+
     def checkInLocal(self, songName="夜曲"):
         onlyfiles = [f for f in listdir("/home/pi/Music/")]
-        print(onlyfiles)
-        if not any(songName in fileName for fileName in onlyfiles):
-            print("Downloading")
+        match = difflib.get_close_matches(songName, listdir("/home/pi/Music/"))
+        condition, File = self.regexMatching(songName, onlyfiles)
+
+        if match == [] and condition:
+            print("Downloading: ", songName)
             self.download_song_to_directory(songName)
-            print("Download Complete")
-            return True
-        return True
+
+        _ , File = self.Matching(songName, onlyfiles)
+        print("Song", File, "is in the dataset")
+        return True 
+
 
     def playSong(self, songName="夜曲"):
         try:
             for fileName in [f for f in listdir("/home/pi/Music/")]: 
-                if songName in fileName: songFile = fileName
-
+                pattern = r"^" + songName + ".*\.wav"
+                regex = re.compile(pattern, re.IGNORECASE)
+                if regex.match(fileName):
+                    songFile = fileName
+                
             songFile = songFile.replace(" ", "\ ")
             print("paplay /home/pi/Music/" + songFile)
             process = subprocess.Popen(['paplay', '/home/pi/Music/'+songFile], stdout=subprocess.PIPE) 

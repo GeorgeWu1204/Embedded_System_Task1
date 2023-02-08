@@ -156,7 +156,7 @@ class sensor_group():
             self.msg = json.dumps(send_msg)
             print(self.msg)
             lock.acquire()
-            message = self.msg
+            message.update(self.msg)
             lock.release()
             time.sleep(10)
 

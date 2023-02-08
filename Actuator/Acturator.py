@@ -1,9 +1,7 @@
 from Actuator.servo import MyServo
 from Actuator.Speaker import speaker
-import json
 
-completed_download_msg = {'music/downloaded': 1}
-completed_send_msg = json.dumps(completed_download_msg)
+# completed_download_msg = {'downloaded': 1}
 
 
 class acturator:
@@ -16,7 +14,7 @@ class acturator:
         self.playing_music = False
         self.musicname = '夜的第七章'
 
-    def controlActurator(self, received_message, send_message, lock_received, lock_sent):
+    def controlActurator(self, received_message, lock_received, downloaded):
         while True:
             with lock_received:
                 self.received_message = received_message
@@ -27,14 +25,13 @@ class acturator:
                     print("rock called start servo ")
 
             if 'music/play' in self.received_message:
-                print("inside music/play")
-                if self.received_message['music/play'] == "1" and self.playing_music == False:
+                # print("inside music/play")
+                if self.received_message['music/play'] == "play" and self.playing_music == False:
                     print("received play")
-                    self.Speaker.playSong(songName= self.musicname)
+                    self.Speaker.playSong(songName=self.musicname)
                     self.playing_music = True
-            else:
-                
-                if self.playing_music:
+                    
+                elif self.received_message['music/play'] == "stop" and self.playing_music == True:
                     print("playing ,about ot kill")
                     self.Speaker.kill()
                     self.playing_music = False
@@ -43,10 +40,11 @@ class acturator:
                 self.musicname = self.received_message["music/name"]
                 print("Check In Local", self.musicname)
                 if self.Speaker.checkInLocal(self.musicname):
-                    with lock_sent:
-                        send_message = completed_send_msg
+                    downloaded.set()
+                    # with lock_sent:
+                    #     send_message.update(completed_download_msg)
                     with lock_received:
-                        received_message.pop(['music/name'])
+                        received_message.pop('music/name')
 
                         
 

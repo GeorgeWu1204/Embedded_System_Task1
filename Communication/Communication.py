@@ -1,21 +1,24 @@
 import paho.mqtt.client as mqtt
 from time import time
+import threading
 import json
 
 
 
-clear_completed_msg =  {'music/downloaded': 0}
-clear_completed_msg = json.dumps(clear_completed_msg)
+download_completed_msg =  {'downloaded': 1}
+
 
 
 class communication:
 
     def __init__(self):
         self.decoded_msg = {}
+        self.event = threading.Event()
 
     def on_connect(self, client, userdata, flags, rc):
         print(f"Connected: {mqtt.error_string(rc)}")
-        client.subscribe("music/#")
+        client.subscribe("music/name")
+        client.subscribe("music/play")
         client.subscribe("rock")
 
     def on_message(self, client, userdata, msg):
@@ -24,8 +27,9 @@ class communication:
         msg_val = msg.payload.decode('ascii')
         self.decoded_msg[msg_key] = msg_val
         print("received decoded data ", self.decoded_msg)
+        self.event.set()
 
-    def start_communication(self, send_msg_from_sensor, send_msg_from_acturator, receive_msg, lock_send_from_sensor, lock_receive, lock_send_from_acturator):
+    def start_communication(self, send_msg_from_sensor, receive_message, downloadflag, lock_send_from_sensor, lock_receive ):
         client = mqtt.Client()
         client.on_connect = self.on_connect
         client.on_message = self.on_message
@@ -44,17 +48,15 @@ class communication:
                 
                 #detect message from the acturator (msg about download music)
              
-                with lock_send_from_acturator:
-                    message_acturator = send_msg_from_acturator
+                # with lock_send_from_acturator:
+                #     message_acturator = send_msg_from_acturator
 
-                # if(message_acturator != clear_completed_msg):
-                #     MSG_INFO = client.publish("sensor", payload =message_acturator)
-                #     print(f"Publish info: {mqtt.error_string(MSG_INFO.rc)}")
-                    
-                #     # time.sleep(5)
-                #     with lock_send_from_acturator:
-                #         send_msg_from_acturator = clear_completed_msg
-                #     print("Sending completed download music")
+                if(downloadflag.is_set()):
+                    message_acturator = json.dumps(download_completed_msg)
+                    MSG_INFO = client.publish("music/downloaded", payload = message_acturator)
+                    print(f"Publish info: {mqtt.error_string(MSG_INFO.rc)}")
+                    downloadflag.clear()
+                    print("complete sending")
 
                 #send message from sensor 
                 #for testing
@@ -63,8 +65,11 @@ class communication:
                 # print(f"Publish info: {mqtt.error_string(MSG_INFO.rc)}")
                 lastMessage = time()
                 # print("published heihei")
-                with lock_receive:
-                    receive_msg = self.decoded_msg
-                    # print(receive_msg)
+                if(self.event.is_set()):
+                    with lock_receive:
+                        receive_message.update(self.decoded_msg)
+                        print("Communication ", receive_message)
+                        self.decoded_msg = {}
+                        self.event.clear()
 
 
