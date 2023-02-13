@@ -117,13 +117,16 @@ class sensor_group():
         self.crying = threading.Event()
         self.awake = threading.Event()
         #GPIO threading start
-        t_1 = threading.Thread(target=self.Noise.start_detection, args=(100, self.crying, GPIO_Detection_Period))
-        t_2 = threading.Thread(target=self.Pir.start_detection, args = (100, self.awake, GPIO_Detection_Period))
-        t_3 = threading.Thread(target=self.Hx.start_detection, args = (100, self.onbed, GPIO_Detection_Period))
+        if(self.Noise != None):
+            t_1 = threading.Thread(target=self.Noise.start_detection, args=(100, self.crying, GPIO_Detection_Period))
+            t_1.start()
+        if(self.Pir != None):
+            t_2 = threading.Thread(target=self.Pir.start_detection, args = (100, self.awake, GPIO_Detection_Period))
+            t_2.start()
+        if(self.Hx != None):
+            t_3 = threading.Thread(target=self.Hx.start_detection, args = (100, self.onbed, GPIO_Detection_Period))
+            t_3.start()
         t_4 = threading.Thread(target=self.pack_data, args=(message, lock))
-        t_1.start()
-        t_2.start()
-        t_3.start()
         t_4.start()
 
         # Start I2C detection on main thread.
@@ -153,12 +156,13 @@ class sensor_group():
                 "humidity" : self.avg_humidity
             }
             send_msg = {"id" : self.name, "data": self.data_storage}
-            self.msg = json.dumps(send_msg)
+            # self.msg = json.dumps(send_msg)
+            self.msg = send_msg
             print(self.msg)
             lock.acquire()
             message.update(self.msg)
             lock.release()
-            time.sleep(10)
+            time.sleep(3)
 
 
 

@@ -1,6 +1,6 @@
 from ytmusicapi import YTMusic
 import subprocess
-from os import listdir,kill
+from os import listdir,kill, environ
 from os.path import isfile, join
 import signal
 import fnmatch
@@ -45,16 +45,16 @@ class speaker:
         match = difflib.get_close_matches(songName, listdir("/home/pi/Music/"))
         condition, File = self.regexMatching(songName, onlyfiles)
 
-        if match == [] and condition:
+        if match == [] and condition == False:
             print("Downloading: ", songName)
             self.download_song_to_directory(songName)
 
-        _ , File = self.Matching(songName, onlyfiles)
+        _ , File = self.regexMatching(songName, onlyfiles)
         print("Song", File, "is in the dataset")
         return True 
 
 
-    def playSong(self, songName="夜曲"):
+    def playSong(self, songName="夜的第七章"):
         try:
             for fileName in [f for f in listdir("/home/pi/Music/")]: 
                 pattern = r"^" + songName + ".*\.wav"
@@ -64,10 +64,15 @@ class speaker:
                 
             songFile = songFile.replace(" ", "\ ")
             print("paplay /home/pi/Music/" + songFile)
-            process = subprocess.Popen(['paplay', '/home/pi/Music/'+songFile], stdout=subprocess.PIPE) 
+
+            # environment = environ.copy()
+            process = subprocess.Popen(['paplay', '/home/pi/Music/' + songFile], stdout=subprocess.PIPE) 
+            # process.communicate()
+            # print(environ)
             self.pid = process.pid
+
         except:
-            print("The song is not in database")
+            print("The song", songName, " is not in database")
 
     def kill(self):
         try:
@@ -79,7 +84,8 @@ class speaker:
 if __name__ == "__main__":
     MySpeaker = speaker()
     MySpeaker.start_connection()
-    MySpeaker.playSong(songName="夜的第七章")
+    MySpeaker.playSong()
+    
 
 
 

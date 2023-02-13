@@ -13,7 +13,7 @@ class top_design:
     def __init__(self, id, mode):
         self.name = id
         self.mode = mode
-        self.Sensors = sensor_group(self.name, max30101_=True, si7021_=True, hx711_=False, pir501_= False, noise_ = False)
+        self.Sensors = sensor_group(self.name, max30101_=True, si7021_=True, hx711_=False, pir501_= True, noise_ = True)
         self.Actuators = acturator (self.name, self.mode)
         self.Comm = communication()
         self.send_message_from_sensors = {}
@@ -45,7 +45,7 @@ class top_design:
         monitor_thread = threading.Thread(target=self.Sensors.low_power_monitor_mode, args=(self.send_message_from_sensors, lock_send_from_sensor))  
         actuator_thread = threading.Thread(target=self.Actuators.controlActurator, args=(self.receive_message, lock_receive, downloaded)) 
         debug_thread = threading.Thread(target=self.debug_perpose, args=(lock_send_from_sensor, lock_send_from_acturator, lock_receive))   
-        # monitor_thread.start()
+        monitor_thread.start()
         # print("monitor start")
         #actuator_thread.start()
         debug_thread.start()
@@ -57,8 +57,8 @@ class top_design:
     
 
 test = top_design("5", "ggg")
-# test.start_monitor()
-test.Actuators.Speaker.checkInLocal(" ")
+test.start_monitor()
+# test.Actuators.Speaker.checkInLocal(" ")
 
 
 

@@ -38,18 +38,14 @@ class communication:
         client.connect("goldcrest101.duckdns.org", 8883) 
         lastMessage = time()
         message = ''
-        while(1):   
+        while True:   
             client.loop()
             if time() - lastMessage > 10:
                 # print("about to publish")
                 
                 with lock_send_from_sensor:
                     message_sensor = send_msg_from_sensor 
-                
-                #detect message from the acturator (msg about download music)
-             
-                # with lock_send_from_acturator:
-                #     message_acturator = send_msg_from_acturator
+                    message_sensor = json.dumps(message_sensor)
 
                 if(downloadflag.is_set()):
                     message_acturator = json.dumps(download_completed_msg)
@@ -59,10 +55,8 @@ class communication:
                     print("complete sending")
 
                 #send message from sensor 
-                #for testing
-                # MSG_INFO = client.publish("music/downloaded", payload =1)
-                # #MSG_INFO = client.publish("sensor", payload =message_sensor)
-                # print(f"Publish info: {mqtt.error_string(MSG_INFO.rc)}")
+                MSG_INFO = client.publish("sensor", payload =message_sensor)
+                print(f"Publish info: {mqtt.error_string(MSG_INFO.rc)}")
                 lastMessage = time()
                 # print("published heihei")
                 if(self.event.is_set()):
