@@ -26,10 +26,6 @@ class speaker:
         print(url)
         return url
     
-    def download_song_to_directory(self, songName, directory="/home/pi/Music/"):
-        url = self.generate_url(songName)
-        subprocess.call("pwd", shell=True, cwd="/home/pi/Music/")
-        subprocess.call("youtube-dl -x --audio-format wav " + url, shell=True, cwd="/home/pi/Music/")
 
     def regexMatching(self,songName, onlyfilesLst):
         firstWord = songName.split(" ")[0]
@@ -40,16 +36,38 @@ class speaker:
                 return [True, fileName]
         return [False, None]
 
+    def download_song_to_directory(self, songName, directory="/home/pi/Music/"):
+        url = self.generate_url(songName)
+        subprocess.call("pwd", shell=True, cwd="/home/pi/Music/")
+        subprocess.call("youtube-dl -x --audio-format wav " + url, shell=True, cwd="/home/pi/Music/")
+        try:
+            onlyfiles = [f for f in listdir("/home/pi/Music/")]
+            match = difflib.get_close_matches(songName, listdir("/home/pi/Music/"))
+            condition, File = self.regexMatching(songName, onlyfiles)
+
+            if match == [] and condition == False:
+                print("Downloading: ", songName)
+                self.download_song_to_directory(songName)
+
+            _ , File = self.regexMatching(songName, onlyfiles)
+            File = File.replace(" ", "\ ")
+            songName = songName.replace(" ", "")
+            print("mv " + File + " " + songName)
+            subprocess.call("mv " + File + " " + songName + ".wav", shell=True, cwd="/home/pi/Music/")
+        except:
+            print("File renaming failed")
+
     def checkInLocal(self, songName="夜曲"):
         onlyfiles = [f for f in listdir("/home/pi/Music/")]
-        match = difflib.get_close_matches(songName, listdir("/home/pi/Music/"))
-        condition, File = self.regexMatching(songName, onlyfiles)
+        songInData = songName.replace(" ", "")
+        match = difflib.get_close_matches(songInData, listdir("/home/pi/Music/"))
+        condition, File = self.regexMatching(songInData, onlyfiles)
 
         if match == [] and condition == False:
             print("Downloading: ", songName)
             self.download_song_to_directory(songName)
 
-        _ , File = self.regexMatching(songName, onlyfiles)
+        _ , File = self.regexMatching(songInData, onlyfiles)
         print("Song", File, "is in the dataset")
         return True 
 
@@ -57,12 +75,14 @@ class speaker:
     def playSong(self, songName="夜的第七章"):
         try:
             for fileName in [f for f in listdir("/home/pi/Music/")]: 
-                pattern = r"^" + songName + ".*\.wav"
+                songInData = songName.replace(" ", "")
+                print(songInData)
+                pattern = r"^" + songInData + ".*\.wav"
                 regex = re.compile(pattern, re.IGNORECASE)
                 if regex.match(fileName):
                     songFile = fileName
                 
-            songFile = songFile.replace(" ", "\ ")
+            # songFile = songFile.replace(" ", "\ ")
             print("paplay /home/pi/Music/" + songFile)
 
             # environment = environ.copy()
@@ -84,7 +104,13 @@ class speaker:
 if __name__ == "__main__":
     MySpeaker = speaker()
     MySpeaker.start_connection()
-    MySpeaker.playSong()
+    # MySpeaker.download_song_to_directory("Something Just Like This")
+    songName = "Something Just Like This"
+    MySpeaker.checkInLocal(songName)
+    MySpeaker.playSong(songName)
+    MySpeaker.kill()
+    
+    # MySpeaker.playSong()
     
 
 

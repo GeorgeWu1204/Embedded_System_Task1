@@ -47,8 +47,9 @@ class top_design:
         debug_thread = threading.Thread(target=self.debug_perpose, args=(lock_send_from_sensor, lock_send_from_acturator, lock_receive))   
         monitor_thread.start()
         # print("monitor start")
-        #actuator_thread.start()
+        actuator_thread.start()
         debug_thread.start()
+
         print("actuator_thread start")
         print("start Communication")
         self.Comm.start_communication(self.send_message_from_sensors,  self.receive_message, downloaded, lock_send_from_sensor, lock_receive   )
