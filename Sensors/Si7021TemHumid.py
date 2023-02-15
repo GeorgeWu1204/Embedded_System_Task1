@@ -8,13 +8,13 @@ class Si7021(gen_sensor_control):
         self.modify_operation_mode([0xF3])
         measured_data = self.take_one_measurement()
         RealTem = (175.72 * measured_data)/65536 - 46.85
-        return RealTem 
+        return round(RealTem, 2) 
     
     def get_humidity_percentage(self):
         self.modify_operation_mode([0xF5])
         measured_data = self.take_one_measurement()
         RealHum = (125 * measured_data)/65536 - 6
-        return RealHum
+        return round(RealHum, 2)
 
     
         

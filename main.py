@@ -38,12 +38,17 @@ class top_design:
 
     def start_monitor(self):
         downloaded = threading.Event()
+        playing_music = threading.Event()
+        playing_music.clear()
+        swinging = threading.Event()
+        swinging.clear()
         lock_receive = threading.Lock()
         lock_send_from_sensor = threading.Lock()
         lock_send_from_acturator = threading.Lock()
+        
 
         monitor_thread = threading.Thread(target=self.Sensors.low_power_monitor_mode, args=(self.send_message_from_sensors, lock_send_from_sensor))  
-        actuator_thread = threading.Thread(target=self.Actuators.controlActurator, args=(self.receive_message, lock_receive, downloaded)) 
+        actuator_thread = threading.Thread(target=self.Actuators.controlActurator, args=(self.receive_message, lock_receive, downloaded, playing_music, swinging)) 
         debug_thread = threading.Thread(target=self.debug_perpose, args=(lock_send_from_sensor, lock_send_from_acturator, lock_receive))   
         monitor_thread.start()
         # print("monitor start")

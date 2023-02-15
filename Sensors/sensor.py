@@ -84,7 +84,6 @@ class sensor_group():
             timer += 1
             record_index += 1
             # print("heart_rater str ")
-            self.heart_rate_per_minute, self.heart_avg = self.Max.take_heartbeat_rate(400)  
             # print("heart_rater done ")
             if(record_index % 5 == 0):
                 self.avg_temperature = Average(T_list)
@@ -96,7 +95,8 @@ class sensor_group():
                 print("humidity_ :", self.avg_humidity)
             else:
                 T_list[record_index] = self.Si.get_temperature_celsius()
-                H_list[record_index] = self.Si.get_humidity_percentage()       
+                H_list[record_index] = self.Si.get_humidity_percentage()  
+            self.heart_rate_per_minute, self.heart_avg = self.Max.take_heartbeat_rate(400)      
 
 
 
@@ -109,7 +109,7 @@ class sensor_group():
         
 
 
-    def low_power_monitor_mode(self, message, lock):
+    def low_power_monitor_mode(self, message, lock, music_on, motor_on):
         input('Press Enter to begin reading to Starting low_power monitoring')
         print("Now, I will read data in infinite loop. To exit press 'CTRL + C'")
         #multi_threading by GPIO
@@ -126,7 +126,7 @@ class sensor_group():
         if(self.Hx != None):
             t_3 = threading.Thread(target=self.Hx.start_detection, args = (100, self.onbed, GPIO_Detection_Period))
             t_3.start()
-        t_4 = threading.Thread(target=self.pack_data, args=(message, lock))
+        t_4 = threading.Thread(target=self.pack_data, args=(message, lock, music_on, motor_on))
         t_4.start()
 
         # Start I2C detection on main thread.
@@ -145,25 +145,44 @@ class sensor_group():
         print("Stop detecting movement")
     
     
-    def pack_data(self, message, lock):
+    def pack_data(self, message, lock, music_on, motor_on):
         while True:
-            self.data_storage = {
-                "onbed" : self.onbed.is_set(), 
-                "crying" : self.crying.is_set(), 
-                "awake" : self.awake.is_set(),
-                "heart_rate" : self.heart_avg, 
-                "temperature" : self.avg_temperature, 
-                "humidity" : self.avg_humidity
-            }
-            send_msg = {"id" : self.name, "data": self.data_storage}
-            # self.msg = json.dumps(send_msg)
-            self.msg = send_msg
-            print(self.msg)
-            lock.acquire()
-            message.update(self.msg)
-            lock.release()
-            time.sleep(3)
-
+            if music_on.is_set() == True or motor_on.is_set() == True:
+                self.data_storage = {
+                    "onbed" : False, 
+                    "crying" : False, 
+                    "awake" : False,
+                    "heart_rate" : self.heart_avg, 
+                    "temperature" : self.avg_temperature, 
+                    "humidity" : self.avg_humidity
+                }
+                send_msg = {"id" : self.name, "data": self.data_storage}
+                # self.msg = json.dumps(send_msg)
+                self.msg = send_msg
+                print(self.msg)
+                lock.acquire()
+                message.update(self.msg)
+                lock.release()
+                time.sleep(3)            
+            
+            else:
+                self.data_storage = {
+                    "onbed" : self.onbed.is_set(), 
+                    "crying" : self.crying.is_set(), 
+                    "awake" : self.awake.is_set(),
+                    "heart_rate" : self.heart_avg, 
+                    "temperature" : self.avg_temperature, 
+                    "humidity" : self.avg_humidity
+                }
+                send_msg = {"id" : self.name, "data": self.data_storage}
+                # self.msg = json.dumps(send_msg)
+                self.msg = send_msg
+                print(self.msg)
+                lock.acquire()
+                message.update(self.msg)
+                lock.release()
+                time.sleep(3)
+            
 
 
 
