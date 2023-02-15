@@ -86,8 +86,8 @@ class sensor_group():
             # print("heart_rater str ")
             # print("heart_rater done ")
             if(record_index % 5 == 0):
-                self.avg_temperature = Average(T_list)
-                self.avg_humidity = Average(H_list)
+                self.avg_temperature = round(Average(T_list),2)
+                self.avg_humidity = round(Average(H_list),2)
 
                 record_index = 0
                 print("heart_rate_ ", self.heart_avg)
@@ -110,7 +110,7 @@ class sensor_group():
 
 
     def low_power_monitor_mode(self, message, lock, music_on, motor_on):
-        input('Press Enter to begin reading to Starting low_power monitoring')
+        # input('Press Enter to begin reading to Starting low_power monitoring')
         print("Now, I will read data in infinite loop. To exit press 'CTRL + C'")
         #multi_threading by GPIO
         self.onbed = threading.Event()

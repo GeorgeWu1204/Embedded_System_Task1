@@ -19,12 +19,17 @@ class speaker:
         subprocess.call("bluetoothctl connect " + self.mac, shell=True)
 
     def generate_url(self,songname):
-        ytmusic = YTMusic('headers_auth.json')
-        # playlistId = ytmusic.create_playlist("test", "test description")
-        search_results = ytmusic.search(songname)
-        url = "https://music.youtube.com/watch?v=" + [search_results[0]['videoId']][0]
-        print(url)
-        return url
+        try:
+            ytmusic = YTMusic('headers_auth.json')
+            # playlistId = ytmusic.create_playlist("test", "test description")
+            search_results = ytmusic.search(songname)
+            url = "https://music.youtube.com/watch?v=" + [search_results[0]['videoId']][0]
+            print(url)
+            return url
+        except:
+            print("Download fail")
+            return None
+
     
 
     def regexMatching(self,songName, onlyfilesLst):
@@ -105,7 +110,7 @@ if __name__ == "__main__":
     MySpeaker = speaker()
     MySpeaker.start_connection()
     # MySpeaker.download_song_to_directory("Something Just Like This")
-    songName = "Something Just Like This"
+    songName = "Legend Never Die"
     MySpeaker.checkInLocal(songName)
     MySpeaker.playSong(songName)
     MySpeaker.kill()
