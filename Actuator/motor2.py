@@ -7,11 +7,13 @@ step_pin = stepper(20)
 dir_pin = stepper(21)
 ms2 = stepper(12)
 ms1 = stepper(1)
+ms0 = stepper(7)
 
 ms2.on()
 ms1.on()
+ms0.on()
 
-delay = 0.001
+delay = 0.0001
 
 seq_cw = [[1,0,0,1], [1,0,0,0], [1,1,0,0], [0,1,0,0], [0,1,1,0], [0,0,1,0], [0,0,1,1], [0,0,0,1]]
 
@@ -24,7 +26,7 @@ print("start")
 
 #initial movement
 print("initial ")
-for i in range(30):
+for i in range(80):
     for halfstep in range(8):
         for pin in range(4):
             step_pin.value = seq_cw[halfstep][pin]
@@ -32,9 +34,9 @@ for i in range(30):
 sleep (3)
 print("complete intial")
 
-for i in range(300):
+for i in range(600):
     print("inside the loop ", i % 3)
-    if i % 40 == 0:
+    if i % 100 == 0:
         print("reach position")
         print("test if it could keep in this position")
         sleep(0.5)

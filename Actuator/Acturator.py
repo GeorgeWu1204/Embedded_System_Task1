@@ -7,12 +7,14 @@ SM_direc_port = 21
 SM_step_port = 20
 SM_ms2 = 12
 SM_ms1 = 1
+SM_ms0 = 0
+
 
 class acturator:
     def __init__(self, id, mode):
         # self.Sensors = sensor_group(self.name)
         self.Speaker = speaker()
-        self.StepMotor = stepper_motor(SM_direc_port, SM_step_port, SM_ms1, SM_ms2)
+        self.StepMotor = stepper_motor(SM_direc_port, SM_step_port, SM_ms1, SM_ms2, SM_ms0)
         self.received_message = ''
         self.playing_music = False
         self.swinging = False
