@@ -20,7 +20,7 @@ Pir501_GPIO = 19
 Hx711_DT_GPIO = 5
 Hx711_SCK_GPIO = 6
 Servo_GPIO = 13
-GPIO_Detection_Period = 10
+GPIO_Detection_Period = None
 Heart_beat_lower_bound = 60
 Heart_beat_upper_bound = 100
 
@@ -67,6 +67,7 @@ class sensor_group():
         self.avg_humidity = 0
         self.msg = None
         self.onbed = threading.Event()
+        self.onbed.set()
         self.crying = threading.Event()
         self.awake = threading.Event()
 
@@ -85,7 +86,7 @@ class sensor_group():
             record_index += 1
             # print("heart_rater str ")
             # print("heart_rater done ")
-            if(record_index % 5 == 0):
+            if(record_index % 3 == 0):
                 self.avg_temperature = round(Average(T_list),2)
                 self.avg_humidity = round(Average(H_list),2)
 
@@ -113,15 +114,15 @@ class sensor_group():
         # input('Press Enter to begin reading to Starting low_power monitoring')
         print("Now, I will read data in infinite loop. To exit press 'CTRL + C'")
         #multi_threading by GPIO
-        self.onbed = threading.Event()
-        self.crying = threading.Event()
-        self.awake = threading.Event()
+        # self.onbed = threading.Event().set()
+        # self.crying = threading.Event()
+        # self.awake = threading.Event()
         #GPIO threading start
         if(self.Noise != None):
-            t_1 = threading.Thread(target=self.Noise.start_detection, args=(100, self.crying, GPIO_Detection_Period))
+            t_1 = threading.Thread(target=self.Noise.start_detection, args=(GPIO_Detection_Period, self.crying))
             t_1.start()
         if(self.Pir != None):
-            t_2 = threading.Thread(target=self.Pir.start_detection, args = (100, self.awake, GPIO_Detection_Period))
+            t_2 = threading.Thread(target=self.Pir.start_detection, args = (GPIO_Detection_Period, self.awake))
             t_2.start()
         if(self.Hx != None):
             t_3 = threading.Thread(target=self.Hx.start_detection, args = (100, self.onbed, GPIO_Detection_Period))
@@ -149,7 +150,7 @@ class sensor_group():
         while True:
             if music_on.is_set() == True or motor_on.is_set() == True:
                 self.data_storage = {
-                    "onbed" : False, 
+                    "onbed" : True, 
                     "crying" : False, 
                     "awake" : False,
                     "heart_rate" : self.heart_avg, 

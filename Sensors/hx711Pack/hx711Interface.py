@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import RPi.GPIO as GPIO  # import GPIO
 from Sensors.hx711Pack.hx711 import HX711  # import the class HX711
+# from hx711 import HX711
 import time
 import queue
 
@@ -85,10 +86,10 @@ class hx711Interface:
             long_result = self.hx.get_weight_mean(20)
             while time_requirement == None or (timer < time_requirement and time_requirement != None):
                 weight_val = self.hx.get_weight_mean(20)
-                # print(self.hx.get_weight_mean(20), 'g')
+                print(self.hx.get_weight_mean(20), 'g', " Time: ", timer)
                 short_result = self.movingAverage(current_val,weight_val, short_result,3)
                 long_result = self.movingAverage(avg_val,weight_val, long_result,10)
-                # print("check load, short result", short_result, "long_resl ", long_result)
+                print("check load, short result", short_result, "long_resl ", long_result)
                 if(long_result -5 < short_result and short_result < long_result + 5):
                     self.event.set()
                 time.sleep(0.5)
@@ -102,6 +103,8 @@ class hx711Interface:
             GPIO.cleanup()
 
 if __name__ == "__main__":
+    import threading
     hx = hx711Interface(dout=5,sck_pin=6)
     hx.setup()
-    hx.start_detection()
+    Test = threading.Event()
+    hx.start_detection(time_requirement = 100, event = Test, detection_period = 10)

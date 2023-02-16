@@ -13,14 +13,16 @@ class pir501():
         # if GPIO.input(channel):
         #         print("Movement Detected!")
         # else:
-        #         print("Movement Detected!")
+        print("Movement Detected!")
+        print(self.detection_count)
         self.detection_count += 1
-        if (self.detection_count >= 5) and (self.event.is_set() == False):
+        if (self.detection_count >= 1) and (self.event.is_set() == False):
             self.event.set()
             self.detection_count = 0
 
-    def start_detection(self, time_requirement = None, event = None, detection_period = 10):
+    def start_detection(self, time_requirement = None, event = None):
         self.event = event
+        detection_period = 10
         GPIO.add_event_detect(self.channel, GPIO.BOTH, bouncetime=300)  # let us know when the pin goes HIGH or LOW
         GPIO.add_event_callback(self.channel, self.callback)  # assign function to GPIO PIN, Run function on change
         timer = 0
@@ -31,5 +33,6 @@ class pir501():
                 timer += 1
                 if(timer % detection_period == 0):
                     self.detection_count = 0
+                    self.event.clear()
         GPIO.remove_event_detect (self.channel)
     

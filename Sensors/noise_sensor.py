@@ -1,6 +1,5 @@
 import RPi.GPIO as GPIO
 import time
-import threading
 
 
 class noise_sensor():
@@ -15,18 +14,35 @@ class noise_sensor():
         # if GPIO.input(channel):
         #         print("Sound Detected!")
         # else:
-        #         print("Sound Detected!")
+        print("Sound Detected!")
+        # print(self.detection_count)
         
         self.detection_count += 1
-        if (self.detection_count >= 5) and (self.event.is_set() == False):
+        if (self.detection_count >= 4) and (self.event.is_set() == False):
             self.event.set()
             self.detection_count = 0
 
-    def start_detection(self, time_requirement = None, event = None, detection_period = 10):
+    def start_detection(self, time_requirement = None, event = None):
+        # self.event = event
+        # detection_period = 10
+        # GPIO.add_event_detect(self.channel, GPIO.BOTH, bouncetime=300)  # let us know when the pin goes HIGH or LOW
+        # GPIO.add_event_callback(self.channel, self.callback)  # assign function to GPIO PIN, Run function on change
+        # # infinite loop
+        # timer = 0
+        # detect_val = 0
+        # while time_requirement == None or (timer < time_requirement and time_requirement != None):
+        #         original_cout = self.detection_count
+        #         time.sleep(0.5)
+        #         timer += 1
+        #         if(timer % detection_period == 0):
+        #             self.detection_count = 0
+        #             self.event.clear()
+        # GPIO.remove_event_detect (self.channel)
+
         self.event = event
-        GPIO.add_event_detect(self.channel, GPIO.BOTH, bouncetime=500)  # let us know when the pin goes HIGH or LOW
+        detection_period = 10
+        GPIO.add_event_detect(self.channel, GPIO.BOTH, bouncetime=300)  # let us know when the pin goes HIGH or LOW
         GPIO.add_event_callback(self.channel, self.callback)  # assign function to GPIO PIN, Run function on change
-        # infinite loop
         timer = 0
         detect_val = 0
         while time_requirement == None or (timer < time_requirement and time_requirement != None):
@@ -35,7 +51,6 @@ class noise_sensor():
                 timer += 1
                 if(timer % detection_period == 0):
                     self.detection_count = 0
-
-
+                    self.event.clear()
         GPIO.remove_event_detect (self.channel)
     

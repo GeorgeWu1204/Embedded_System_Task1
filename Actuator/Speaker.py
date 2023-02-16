@@ -13,23 +13,22 @@ class speaker:
         self.mac = mac_address
         self.start_connection()
         self.pid = None
+        self.readyToPlay = None
     
     def start_connection(self):
         subprocess.call("systemctl --user start pulseaudio", shell=True)
         subprocess.call("bluetoothctl connect " + self.mac, shell=True)
 
     def generate_url(self,songname):
+        ytmusic = YTMusic('headers_auth.json')
+        # playlistId = ytmusic.create_playlist("test", "test description")
+        search_results = ytmusic.search(songname)
         try:
-            ytmusic = YTMusic('headers_auth.json')
-            # playlistId = ytmusic.create_playlist("test", "test description")
-            search_results = ytmusic.search(songname)
             url = "https://music.youtube.com/watch?v=" + [search_results[0]['videoId']][0]
-            print(url)
             return url
         except:
-            print("Download fail")
-            return None
-
+            url = "https://music.youtube.com/watch?v=" + [search_results[1]['videoId']][0]
+            return url
     
 
     def regexMatching(self,songName, onlyfilesLst):
@@ -37,6 +36,7 @@ class speaker:
         pattern = r"^" + firstWord + ".*\.wav"
         regex = re.compile(pattern, re.IGNORECASE)
         for fileName in onlyfilesLst:
+            print("regex Matching", fileName)
             if regex.match(fileName):
                 return [True, fileName]
         return [False, None]
@@ -56,9 +56,12 @@ class speaker:
 
             _ , File = self.regexMatching(songName, onlyfiles)
             File = File.replace(" ", "\ ")
+
+            #renaming process
             songName = songName.replace(" ", "")
             print("mv " + File + " " + songName)
             subprocess.call("mv " + File + " " + songName + ".wav", shell=True, cwd="/home/pi/Music/")
+            self.readyToPlay = songName + ".wav"
         except:
             print("File renaming failed")
 
@@ -66,32 +69,35 @@ class speaker:
         onlyfiles = [f for f in listdir("/home/pi/Music/")]
         songInData = songName.replace(" ", "")
         match = difflib.get_close_matches(songInData, listdir("/home/pi/Music/"))
-        condition, File = self.regexMatching(songInData, onlyfiles)
+        condition, self.readyToPlay = self.regexMatching(songInData, onlyfiles)
 
         if match == [] and condition == False:
             print("Downloading: ", songName)
             self.download_song_to_directory(songName)
 
-        _ , File = self.regexMatching(songInData, onlyfiles)
-        print("Song", File, "is in the dataset")
+
+        print("Song", self.readyToPlay, "is in the dataset")
         return True 
 
 
     def playSong(self, songName="夜的第七章"):
         try:
-            for fileName in [f for f in listdir("/home/pi/Music/")]: 
-                songInData = songName.replace(" ", "")
-                print(songInData)
-                pattern = r"^" + songInData + ".*\.wav"
-                regex = re.compile(pattern, re.IGNORECASE)
-                if regex.match(fileName):
-                    songFile = fileName
+            try:
+                for fileName in [f for f in listdir("/home/pi/Music/")]: 
+                    songInData = songName.replace(" ", "")
+                    print(songInData)
+                    pattern = r"^" + songInData + ".*\.wav"
+                    regex = re.compile(pattern, re.IGNORECASE)
+                    if regex.match(fileName):
+                        songFile = fileName
+            except:
+                songFile = self.readyToPlay
                 
             # songFile = songFile.replace(" ", "\ ")
             print("paplay /home/pi/Music/" + songFile)
 
             # environment = environ.copy()
-            process = subprocess.Popen(['paplay', '/home/pi/Music/' + songFile], stdout=subprocess.PIPE) 
+            process = subprocess.Popen(['paplay', '--volume=35530' ,'/home/pi/Music/' + songFile], stdout=subprocess.PIPE) 
             # process.communicate()
             # print(environ)
             self.pid = process.pid
@@ -110,10 +116,10 @@ if __name__ == "__main__":
     MySpeaker = speaker()
     MySpeaker.start_connection()
     # MySpeaker.download_song_to_directory("Something Just Like This")
-    songName = "Legend Never Die"
+    songName = "canon in d"
     MySpeaker.checkInLocal(songName)
     MySpeaker.playSong(songName)
-    MySpeaker.kill()
+    # MySpeaker.kill()
     
     # MySpeaker.playSong()
     
