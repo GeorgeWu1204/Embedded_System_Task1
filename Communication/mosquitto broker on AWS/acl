@@ -1,0 +1,23 @@
+# Allow anonymous access to the sys
+topic read $SYS/#
+
+# Allow anonymous to read weather
+topic read sensor/#
+topic read music/#
+topic read rock/#
+
+# weewx readwrite to the loop
+user cathy
+topic sensor/#
+topic music/#
+topic rock/#
+
+user webapp
+topic sensor/#
+topic music/#
+topic rock/#
+
+user pi
+topic sensor/#
+topic music/#
+topic rock/#
