@@ -62,8 +62,8 @@ class top_design:
     
     
 
-test = top_design("5", "ggg")
-test.start_monitor()
+Cradle = top_design("5", "ggg")
+Cradle.start_monitor()
 # test.Actuators.Speaker.checkInLocal(" ")
 
 
