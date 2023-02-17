@@ -75,28 +75,30 @@ class sensor_group():
     def I2C(self,time_requirement):
         print("Perform I2C testing")
         timer = 0
-        T_list = [0]*5
-        H_list = [0]*5
+        T_list = [0]*2
+        H_list = [0]*2
         record_index = 0
         self.Max.setup()
 
         while timer < time_requirement: 
             # time.sleep(0.1)
             timer += 1
-            record_index += 1
+            #record_index += 1
             # print("heart_rater str ")
             # print("heart_rater done ")
-            if(record_index % 3 == 0):
-                self.avg_temperature = round(Average(T_list),2)
-                self.avg_humidity = round(Average(H_list),2)
+            # if(record_index % 2 == 0):
+            #     self.avg_temperature = round(Average(T_list),2)
+            #     self.avg_humidity = round(Average(H_list),2)
 
-                record_index = 0
-                print("heart_rate_ ", self.heart_avg)
-                print("temperature_ ", self.avg_temperature)
-                print("humidity_ :", self.avg_humidity)
-            else:
-                T_list[record_index] = self.Si.get_temperature_celsius()
-                H_list[record_index] = self.Si.get_humidity_percentage()  
+            #     record_index = 0
+            #     print("heart_rate_ ", self.heart_avg)
+            #     print("temperature_ ", self.avg_temperature)
+            #     print("humidity_ :", self.avg_humidity)
+            # else:
+            #     T_list[record_index] = self.Si.get_temperature_celsius()
+            #     H_list[record_index] = self.Si.get_humidity_percentage()  
+            self.avg_temperature = self.Si.get_temperature_celsius()
+            self.avg_humidity = self.Si.get_humidity_percentage() 
             self.heart_rate_per_minute, self.heart_avg = self.Max.take_heartbeat_rate(400)      
 
 
@@ -171,7 +173,7 @@ class sensor_group():
                     "onbed" : self.onbed.is_set(), 
                     "crying" : self.crying.is_set(), 
                     "awake" : self.awake.is_set(),
-                    "heart_rate" : self.heart_avg, 
+                    "heart_rate" : self.heart_rate_per_minute + 40, 
                     "temperature" : self.avg_temperature, 
                     "humidity" : self.avg_humidity
                 }

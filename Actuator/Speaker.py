@@ -97,7 +97,7 @@ class speaker:
             print("paplay /home/pi/Music/" + songFile)
 
             # environment = environ.copy()
-            process = subprocess.Popen(['paplay', '--volume=35530' ,'/home/pi/Music/' + songFile], stdout=subprocess.PIPE) 
+            process = subprocess.Popen(['paplay' ,'/home/pi/Music/' + songFile], stdout=subprocess.PIPE) 
             # process.communicate()
             # print(environ)
             self.pid = process.pid

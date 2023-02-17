@@ -14,7 +14,6 @@ class noise_sensor():
         # if GPIO.input(channel):
         #         print("Sound Detected!")
         # else:
-        print("Sound Detected!")
         # print(self.detection_count)
         
         self.detection_count += 1

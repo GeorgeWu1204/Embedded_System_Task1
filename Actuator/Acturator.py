@@ -7,7 +7,7 @@ SM_direc_port = 21
 SM_step_port = 20
 SM_ms2 = 12
 SM_ms1 = 1
-SM_ms0 = 0
+SM_ms0 = 7
 
 
 class acturator:

@@ -24,30 +24,30 @@ class stepper_motor:
         
     def swing(self):
         sleep(5)
-        self.ms2.on()
-        self.ms1.on()
-        self.ms0.on()
+
         i = 0
         self.dir_pin.value = 1
         while self.stop_event.is_set() == False:
+            
             if i == 0 :
+                self.ms2.on()
+                self.ms1.on()
+                self.ms0.on()
                 for g in range(80):
                     for halfstep in range(8):
                         for pin in range(4):
                             self.step_pin.value = seq_cw[halfstep][pin]
-                            sleep(delay)
-                sleep (1)
+                            # sleep(delay)
+                sleep (0.5)
 
             if i % 100 == 0:
-                print("reach position")
-                print("test if it could keep in this position")
                 sleep(0.5)
                 self.dir_pin.value = 1 - self.dir_pin.value
                 seq = seq_ccw if self.dir_pin.value == 0 else seq_cw
             for halfstep in range(8):
                 for pin in range(4):
                     self.step_pin.value = seq[halfstep][pin]
-                    sleep(delay)
+                    # sleep(delay)
             i += 1
             
         print("complete swing")

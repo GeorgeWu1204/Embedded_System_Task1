@@ -73,8 +73,8 @@ class hx711Interface:
 
 
     def start_detection(self, time_requirement = None, event = None, detection_period = 10):
-        current_val = queue.Queue(3)
-        avg_val = queue.Queue(10)
+        # current_val = queue.Queue(3)
+        avg_val = queue.Queue(5)
         self.event = event
 
         try:
@@ -86,11 +86,17 @@ class hx711Interface:
             long_result = self.hx.get_weight_mean(20)
             while time_requirement == None or (timer < time_requirement and time_requirement != None):
                 weight_val = self.hx.get_weight_mean(20)
-                print(self.hx.get_weight_mean(20), 'g', " Time: ", timer)
-                short_result = self.movingAverage(current_val,weight_val, short_result,3)
-                long_result = self.movingAverage(avg_val,weight_val, long_result,10)
+                #print(self.hx.get_weight_mean(20), 'g', " Time: ", timer)
+                # short_result = self.movingAverage(current_val,weight_val, short_result,3)
+                short_result = weight_val
+                long_result = self.movingAverage(avg_val, weight_val, long_result,5)
                 print("check load, short result", short_result, "long_resl ", long_result)
-                if(long_result -5 < short_result and short_result < long_result + 5):
+                
+                # if(long_result -5 < short_result and short_result < long_result + 5):
+                #     self.event.set()
+                if(short_result < long_result -20):
+                    self.event.clear()
+                elif(short_result > long_result + 20):
                     self.event.set()
                 time.sleep(0.5)
                 timer += 1

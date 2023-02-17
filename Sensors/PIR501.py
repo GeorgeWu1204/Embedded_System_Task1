@@ -13,8 +13,7 @@ class pir501():
         # if GPIO.input(channel):
         #         print("Movement Detected!")
         # else:
-        print("Movement Detected!")
-        print(self.detection_count)
+        # print(self.detection_count)
         self.detection_count += 1
         if (self.detection_count >= 1) and (self.event.is_set() == False):
             self.event.set()

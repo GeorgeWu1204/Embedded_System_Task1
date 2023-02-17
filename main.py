@@ -13,7 +13,7 @@ class top_design:
     def __init__(self, id, mode):
         self.name = id
         self.mode = mode
-        self.Sensors = sensor_group(self.name, max30101_=True, si7021_=True, hx711_=False, pir501_= True, noise_ = True)
+        self.Sensors = sensor_group(self.name, max30101_=True, si7021_=True, hx711_=True, pir501_= True, noise_ = True)
         self.Actuators = acturator (self.name, self.mode)
         self.Comm = communication()
         self.send_message_from_sensors = {}

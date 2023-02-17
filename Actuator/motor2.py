@@ -31,7 +31,7 @@ for i in range(80):
         for pin in range(4):
             step_pin.value = seq_cw[halfstep][pin]
             sleep(delay)
-sleep (3)
+sleep (0.5)
 print("complete intial")
 
 for i in range(600):
